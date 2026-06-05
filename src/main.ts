@@ -24,6 +24,10 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(configService.get<string>('PORT') ?? 4200);
+  await app.listen(configService.get<string>('PORT') ?? 4200, () => {
+    console.log(
+      `Start server with port ${configService.get<string>('PORT') ?? 4200}`,
+    );
+  });
 }
 bootstrap();

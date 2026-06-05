@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CategoriesModule } from './categories/categories.module';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { ConfigModule } from '@nestjs/config';
 
@@ -8,8 +9,9 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.development'],
+      envFilePath: [`.env.${process.env.NODE_ENV}.local`],
     }),
+    CategoriesModule,
     CurrenciesModule,
   ],
   controllers: [AppController],
