@@ -13,7 +13,9 @@
     "target": "ES2023",
     "sourceMap": true,
     "paths": {
+      "@prisma/service": ["./src/prisma/prisma.service"],
       "@common": ["./src/common"],
+      "@common/constants": ["./src/common/constants"],
       "@currencies": ["./src/currencies"]
     },
     "outDir": "./dist",
