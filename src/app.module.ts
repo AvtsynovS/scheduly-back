@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CategoriesModule } from './categories/categories.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     CategoriesModule,
     CurrenciesModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
