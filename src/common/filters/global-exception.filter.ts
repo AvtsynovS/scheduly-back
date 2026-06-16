@@ -5,14 +5,12 @@ import {
   HttpException,
 } from '@nestjs/common';
 
-import { Prisma } from '@prisma/client';
-
 import { RequestContextService } from '../request-context/request-context.service';
 import { ErrorResponseDto } from '../dto/responses/error-response.dto';
 import { DomainException } from '../errors/domain.exception';
 import { getErrorMetadata } from '../errors/utils/get-error-metadata';
-import { mapPrismaError } from '../errors/prisma/prisma-errors.mapper';
 import { ERRORS_CODE } from '../errors/constants/error.constants';
+import { InfrastructureException } from '../errors/infrastructure.exception';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -26,19 +24,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     response.setHeader('X-Request-Id', requestId ?? '');
 
     /**
-     * 1. Prisma errors
+     * 1. INFRASTRUCTURE ERRORS (DB, external services, etc.)
      */
-    if (exception instanceof Prisma.PrismaClientKnownRequestError) {
-      const mapped = mapPrismaError(exception);
+    if (exception instanceof InfrastructureException) {
+      const metadata = getErrorMetadata(exception.constructor);
 
       const body: ErrorResponseDto = {
         success: false,
-        ...mapped,
+        code: exception.code,
+        status: metadata?.status ?? 500,
+        message: exception.message,
         requestId,
         timestamp,
       };
 
-      return response.status(mapped.status).json(body);
+      return response.status(body.status).json(body);
     }
 
     /**
@@ -94,6 +94,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return response.status(500).json({
       success: false,
       code: ERRORS_CODE.INTERNAL_ERROR,
+      status: 500,
       message: 'Internal server error',
       requestId,
       timestamp,
