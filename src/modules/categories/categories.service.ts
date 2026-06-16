@@ -1,27 +1,41 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { DatabaseConstraintError, DatabaseOperationError } from '@common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { PrismaService } from '@prisma/service';
+import { CategoriesRepository } from './repository/categories.repository';
 import { CategoryNotFoundError } from './errors/category-not-found.error';
+import { CategoryAlreadyExistsError } from './errors/category-already-exists.error';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly repo: CategoriesRepository) {}
+
+  private mapInfrastructureError(e: unknown): never {
+    if (e instanceof DatabaseOperationError) {
+      throw new CategoryNotFoundError();
+    }
+
+    if (e instanceof DatabaseConstraintError) {
+      throw new CategoryAlreadyExistsError();
+    }
+
+    throw e;
+  }
 
   async create(createCategoryDto: CreateCategoryDto) {
-    return await this.prisma.category.create({
-      data: createCategoryDto,
-    });
+    try {
+      return await this.repo.create(createCategoryDto);
+    } catch (e) {
+      this.mapInfrastructureError(e);
+    }
   }
 
   async findAll() {
-    return await this.prisma.category.findMany();
+    return this.repo.findAll();
   }
 
   async findOne(id: string) {
-    const category = await this.prisma.category.findUnique({
-      where: { id },
-    });
+    const category = await this.repo.findById(id);
 
     if (!category) {
       throw new CategoryNotFoundError();
@@ -32,22 +46,16 @@ export class CategoriesService {
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     try {
-      return await this.prisma.category.update({
-        where: { id },
-        data: updateCategoryDto,
-      });
-    } catch {
-      throw new NotFoundException('Category not found');
+      return await this.repo.update(id, updateCategoryDto);
+    } catch (e) {
+      this.mapInfrastructureError(e);
     }
   }
-
   async remove(id: string) {
     try {
-      await this.prisma.category.delete({
-        where: { id },
-      });
-    } catch {
-      throw new NotFoundException('Category not found');
+      return this.repo.delete(id);
+    } catch (e) {
+      this.mapInfrastructureError(e);
     }
   }
 }
