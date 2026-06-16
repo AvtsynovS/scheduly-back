@@ -1,0 +1,6 @@
+export const ERROR_METADATA_KEY = Symbol('ERROR_METADATA');
+
+export const ERRORS_CODE = {
+  HTTP_ERROR: 'HTTP_ERROR',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const;
