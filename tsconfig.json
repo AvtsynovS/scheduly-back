@@ -16,6 +16,8 @@
       "@prisma/service": ["./src/prisma/prisma.service"],
       "@common": ["./src/common"],
       "@common/constants": ["./src/common/constants"],
+      "@common/errors": ["./src/common/errors"],
+      "@modules/categories": ["./src/modules/categories"],
       "@currencies": ["./src/currencies"]
     },
     "outDir": "./dist",
