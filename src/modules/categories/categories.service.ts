@@ -5,6 +5,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoriesRepository } from './repository/categories.repository';
 import { CategoryNotFoundError } from './errors/category-not-found.error';
 import { CategoryAlreadyExistsError } from './errors/category-already-exists.error';
+import { SearchCategoriesQueryDto } from './dto/search-categories-query.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -30,8 +31,8 @@ export class CategoriesService {
     }
   }
 
-  async findAll() {
-    return this.repo.findAll();
+  async findAll(query: SearchCategoriesQueryDto) {
+    return this.repo.findAll(query);
   }
 
   async findOne(id: string) {

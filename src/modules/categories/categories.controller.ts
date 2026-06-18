@@ -9,10 +9,12 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { SearchCategoriesQueryDto } from './dto/search-categories-query.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -20,13 +22,12 @@ export class CategoriesController {
 
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
-    console.log('createCategoryDto', createCategoryDto);
     return this.categoriesService.create(createCategoryDto);
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  findAll(@Query() query: SearchCategoriesQueryDto) {
+    return this.categoriesService.findAll(query);
   }
 
   @Get(':id')

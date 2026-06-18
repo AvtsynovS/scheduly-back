@@ -3,14 +3,32 @@ import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { Injectable } from '@nestjs/common';
 import { PrismaErrorMapper } from '@common';
+import { SearchCategoriesQueryDto } from '../dto/search-categories-query.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CategoriesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(query: SearchCategoriesQueryDto) {
     try {
-      return await this.prisma.category.findMany();
+      const where: Prisma.CategoryWhereInput = {};
+
+      if (query.search) {
+        where.name = {
+          contains: query.search,
+          mode: 'insensitive',
+        };
+      }
+
+      return this.prisma.category.findMany({
+        where,
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+        orderBy: {
+          name: 'asc',
+        },
+      });
     } catch (e) {
       throw this.mapError(e);
     }
