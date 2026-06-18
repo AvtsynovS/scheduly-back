@@ -15,6 +15,7 @@
     "paths": {
       "@prisma/service": ["./src/prisma/prisma.service"],
       "@common": ["./src/common"],
+      "@common/dto": ["./src/common/dto"],
       "@common/constants": ["./src/common/constants"],
       "@common/errors": ["./src/common/errors"],
       "@modules/categories": ["./src/modules/categories"],
