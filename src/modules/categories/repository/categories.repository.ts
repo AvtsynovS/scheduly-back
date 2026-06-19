@@ -5,30 +5,46 @@ import { Injectable } from '@nestjs/common';
 import { PrismaErrorMapper } from '@common';
 import { SearchCategoriesQueryDto } from '../dto/search-categories-query.dto';
 import { Prisma } from '@prisma/client';
+import { ListQueryDto } from '@common/dto';
 
 @Injectable()
 export class CategoriesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: SearchCategoriesQueryDto) {
+  async findAll({ search, page, limit }: ListQueryDto) {
     try {
       const where: Prisma.CategoryWhereInput = {};
 
-      if (query.search) {
+      if (search) {
         where.name = {
-          contains: query.search,
+          contains: search,
           mode: 'insensitive',
         };
       }
 
-      return this.prisma.category.findMany({
-        where,
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
-        orderBy: {
-          name: 'asc',
+      const [categories, total] = await this.prisma.$transaction([
+        this.prisma.category.findMany({
+          where,
+          skip: (page - 1) * limit,
+          take: limit,
+          orderBy: {
+            name: 'asc',
+          },
+        }),
+
+        this.prisma.category.count({
+          where,
+        }),
+      ]);
+
+      return {
+        data: categories,
+        meta: {
+          total,
+          page,
+          limit,
         },
-      });
+      };
     } catch (e) {
       throw this.mapError(e);
     }
